@@ -17,10 +17,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Route::resource('students', SubjectController::class);
 
-Route::resource('questions', QuestionController::class,[
-    'except' =>  'destroy',
-    'parameters' =>[
-        'questions' => 'pag'
-    ]
-]);
+Route::resource('students', 'App\Http\Controllers\StudentController');
+
+Route::resource('subjects', 'App\Http\Controllers\SubjectController');
+
+Route::resource('questions', QuestionController::class);
+
+
+

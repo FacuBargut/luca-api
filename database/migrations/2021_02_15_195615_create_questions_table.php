@@ -19,8 +19,8 @@ class CreateQuestionsTable extends Migration
             $table->string('description', 255)->nullable(false);
             $table->bigInteger('id_student')->unsigned();
             $table->bigInteger('id_subject')->unsigned();
-            $table->foreign('id_student')->references('id')->on('students');
-            $table->foreign('id_subject')->references('id')->on('subjects');
+            $table->foreign('id_student')->references('id')->on('students')->onDelete('cascade');
+            $table->foreign('id_subject')->references('id')->on('subjects')->onDelete('cascade');
         });
     }
 

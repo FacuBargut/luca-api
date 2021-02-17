@@ -9,4 +9,9 @@ class Question extends Model
 {
     use HasFactory;
     public $timestamps = false;
+
+
+    protected $fillable = [
+        'title', 'description','id_student','id_subject'
+    ];
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class QuestionController extends Controller
 {
@@ -12,21 +13,9 @@ class QuestionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($pag = 0)
+    public function index()
     {   
-
-        return $pag;
-
-        if($pag == 0){
-
-            // return Question::all();
-            return "holaa";
-        }else{
-            return Question::paginate($pag);
-        }
-
-
-
+        return Question::paginate(15);
     }
 
     /**
@@ -36,10 +25,30 @@ class QuestionController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $question = Question::create($request->all());
+    {   
 
-        return $question;
+        $validation = Validator::make($request->all(),[ 
+            'title' => 'required',
+            'description' => 'required',
+            'id_student' => 'required',
+            'id_subject' => 'required',
+        ]);
+
+        if($validation->fails()){
+            return response()->json([
+                'error' => true,
+                'messages'  => $validation->errors(),
+            ], 200);
+        }
+        else
+        {
+            $question = Question::create($request->all());
+
+            return response()->json([
+                'error' => false,
+                'question'  => $question,
+            ], 200);
+        }
     }
 
     /**
@@ -48,9 +57,21 @@ class QuestionController extends Controller
      * @param  \App\Models\Question  $question
      * @return \Illuminate\Http\Response
      */
-    public function show(Question $question)
+    public function show($id)
     {
-        return $question;
+        $question = Question::find($id);
+
+        if(is_null($question)){
+            return response()->json([
+                'error' => true,
+                'message'  => "Record with id # $id not found",
+            ], 404);
+        }
+
+        return response()->json([
+            'error' => false,
+            'question'  => $question,
+        ], 200);
     }
 
     /**
@@ -60,9 +81,35 @@ class QuestionController extends Controller
      * @param  \App\Models\Question  $question
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Question $question)
+    public function update(Request $request, $id)
     {
-        $question->update($request->all());
+        $validation = Validator::make($request->all(),[ 
+            'title' => 'required',
+            'description' => 'required',
+            'id_student' => 'required',
+            'id_subject' => 'required',
+        ]);
+
+        if($validation->fails()){
+            return response()->json([
+                'error' => true,
+                'messages'  => $validation->errors(),
+            ], 200);
+        }
+        else
+        {
+            $question = Question::find($id);
+            $question->title = $request->input('title');
+            $question->description = $request->input('description');
+            $question->id_student = $request->input('id_student');
+            $question->id_subject = $request->input('id_subject');
+            $question->save();
+
+            return response()->json([
+                'error' => false,
+                'question'  => $question,
+            ], 200);
+        }
     }
 
     /**
@@ -71,10 +118,22 @@ class QuestionController extends Controller
      * @param  \App\Models\Question  $question
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Question $question)
+    public function destroy($id)
     {
+        $question = Question::find($id);
+
+        if(is_null($question)){
+            return response()->json([
+                'error' => true,
+                'message'  => "Record with id # $id not found",
+            ], 404);
+        }
+
         $question->delete();
 
-        return response()->json();
+        return response()->json([
+            'error' => false,
+            'message'  => "Question record successfully deleted id # $id",
+        ], 200);
     }
 }
